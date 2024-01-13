@@ -22,7 +22,16 @@ function Gameboard() {
     console.log(boardWithCellValues)
   }
 
-  return { getBoard, selectSquare, printBoard }
+  const resetBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      board[i] = []
+      for (let j = 0; j < columns; j++) {
+        board[i].push(Square())
+      }
+    }
+  }
+
+  return { getBoard, selectSquare, printBoard, resetBoard }
 }
 
 function Square() {
@@ -37,19 +46,21 @@ function Square() {
   return { addToken, getValue }
 }
 
-const GameController = (function (playerOneName = 'Player One', playerTwoName = 'Player Two') {
+const GameController = (function () {
   const board = Gameboard()
 
   const players = [
     {
-      name: playerOneName,
+      name: '',
       token: 1,
     },
     {
-      name: playerTwoName,
+      name: '',
       token: 2,
     },
   ]
+
+  players.forEach((player) => (player.name = prompt(`Player ${player.token}, what is your name?`, `Player ${player.token}`)))
 
   let playerTurn = players[0]
 
@@ -89,18 +100,26 @@ const GameController = (function (playerOneName = 'Player One', playerTwoName = 
     printNewRound()
   }
 
+  const resetGame = () => {
+    board.resetBoard()
+    playerTurn = players[0]
+  }
+
   printNewRound()
 
-  return { playRound, getPlayerTurn, getBoard: board.getBoard }
+  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame }
 })()
 
 const displayController = (function () {
   const playerTurnText = document.querySelector('.player')
   const boardDiv = document.querySelector('.board')
+  const btnDiv = document.querySelector('.buttons')
+  const resetButton = document.createElement('button')
+  resetButton.textContent = 'Reset board'
+  btnDiv.appendChild(resetButton)
 
   const screenUpdate = () => {
     boardDiv.textContent = ''
-
     const board = GameController.getBoard()
     const currentPlayer = GameController.getPlayerTurn()
 
@@ -121,11 +140,17 @@ const displayController = (function () {
   function boardClick(e) {
     const selectColumn = e.target.dataset.column
     const selectRow = e.target.dataset.row
-
+    if (e.target.textContent !== '0') return
     GameController.playRound(selectRow, selectColumn)
     screenUpdate()
   }
   boardDiv.addEventListener('click', boardClick)
+
+  function resetBoardBtn() {
+    GameController.resetGame()
+    screenUpdate()
+  }
+  resetButton.addEventListener('click', resetBoardBtn)
 
   screenUpdate()
 })()
