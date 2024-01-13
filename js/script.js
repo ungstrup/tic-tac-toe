@@ -3,12 +3,16 @@ function Gameboard() {
   const columns = 3
   const board = []
 
-  for (let i = 0; i < rows; i++) {
-    board[i] = []
-    for (let j = 0; j < columns; j++) {
-      board[i].push(Square())
+  const resetBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      board[i] = []
+      for (let j = 0; j < columns; j++) {
+        board[i].push(Square())
+      }
     }
   }
+
+  resetBoard()
   const getBoard = () => board
 
   const selectSquare = (row, column, player) => {
@@ -20,15 +24,6 @@ function Gameboard() {
   const printBoard = () => {
     const boardWithCellValues = board.map((row) => row.map((square) => square.getValue()))
     console.log(boardWithCellValues)
-  }
-
-  const resetBoard = () => {
-    for (let i = 0; i < rows; i++) {
-      board[i] = []
-      for (let j = 0; j < columns; j++) {
-        board[i].push(Square())
-      }
-    }
   }
 
   return { getBoard, selectSquare, printBoard, resetBoard }
@@ -154,11 +149,3 @@ const displayController = (function () {
 
   screenUpdate()
 })()
-
-// GameController.playRound(0, 2)
-// GameController.playRound(2, 1)
-// GameController.playRound(1, 1)
-// GameController.playRound(2, 2)
-// GameController.playRound(2, 0)
-// GameController.playRound(0, 1)
-// GameController.playRound(0, 1)
