@@ -1,4 +1,4 @@
-const Gameboard = (function () {
+function Gameboard() {
   const rows = 3
   const columns = 3
   const board = []
@@ -6,26 +6,26 @@ const Gameboard = (function () {
   for (let i = 0; i < rows; i++) {
     board[i] = []
     for (let j = 0; j < columns; j++) {
-      board[i].push(Cell())
+      board[i].push(Square())
     }
   }
   const getBoard = () => board
 
-  const selectCell = (row, column, player) => {
-    const availableCell = board[row][column]
-    if (availableCell.getValue() !== 0) return
+  const selectSquare = (row, column, player) => {
+    const availableSquare = board[row][column]
+    if (availableSquare.getValue() !== 0) return
     board[row][column].addToken(player)
   }
 
   const printBoard = () => {
-    const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()))
+    const boardWithCellValues = board.map((row) => row.map((square) => square.getValue()))
     console.log(boardWithCellValues)
   }
 
-  return { getBoard, selectCell, printBoard }
-})()
+  return { getBoard, selectSquare, printBoard }
+}
 
-function Cell() {
+function Square() {
   let value = 0
 
   const addToken = (player) => {
@@ -38,7 +38,7 @@ function Cell() {
 }
 
 const GameController = (function (playerOneName = 'Player One', playerTwoName = 'Player Two') {
-  // const board = Gameboard()
+  const board = Gameboard()
 
   const players = [
     {
@@ -60,15 +60,15 @@ const GameController = (function (playerOneName = 'Player One', playerTwoName = 
   const getPlayerTurn = () => playerTurn
 
   const printNewRound = () => {
-    Gameboard.printBoard()
+    board.printBoard()
     console.log(`${getPlayerTurn().name}'s turn.`)
   }
 
   const playRound = (row, column) => {
-    Gameboard.selectCell(row, column, getPlayerTurn().token)
+    board.selectSquare(row, column, getPlayerTurn().token)
 
-    const boardColumn = Gameboard.getBoard().filter((rows) => rows[column].getValue() === getPlayerTurn().token)
-    const boardRow = Gameboard.getBoard()[row].every((index) => index.getValue() === getPlayerTurn().token)
+    const boardColumn = board.getBoard().filter((rows) => rows[column].getValue() === getPlayerTurn().token)
+    const boardRow = board.getBoard()[row].every((index) => index.getValue() === getPlayerTurn().token)
 
     if (boardRow === true) {
       console.log(`${getPlayerTurn().name} wins!`)
@@ -76,11 +76,11 @@ const GameController = (function (playerOneName = 'Player One', playerTwoName = 
     if (boardColumn.length === 3) {
       console.log(`${getPlayerTurn().name} wins!`)
     }
-    if (Gameboard.getBoard()[1][1].getValue() === getPlayerTurn().token) {
-      if (Gameboard.getBoard()[0][0].getValue() === getPlayerTurn().token && Gameboard.getBoard()[2][2].getValue() === getPlayerTurn().token) {
+    if (board.getBoard()[1][1].getValue() === getPlayerTurn().token) {
+      if (board.getBoard()[0][0].getValue() === getPlayerTurn().token && board.getBoard()[2][2].getValue() === getPlayerTurn().token) {
         console.log(`${getPlayerTurn().name} wins!`)
       }
-      if (Gameboard.getBoard()[0][2].getValue() === getPlayerTurn().token && Gameboard.getBoard()[2][0].getValue() === getPlayerTurn().token) {
+      if (board.getBoard()[0][2].getValue() === getPlayerTurn().token && board.getBoard()[2][0].getValue() === getPlayerTurn().token) {
         console.log(`${getPlayerTurn().name} wins!`)
       }
     }
@@ -91,13 +91,49 @@ const GameController = (function (playerOneName = 'Player One', playerTwoName = 
 
   printNewRound()
 
-  return { playRound, getPlayerTurn }
+  return { playRound, getPlayerTurn, getBoard: board.getBoard }
 })()
 
-GameController.playRound(0, 2)
-GameController.playRound(2, 1)
-GameController.playRound(1, 1)
-GameController.playRound(2, 2)
-GameController.playRound(2, 0)
-GameController.playRound(0, 1)
-GameController.playRound(0, 1)
+const displayController = (function () {
+  const playerTurnText = document.querySelector('.player')
+  const boardDiv = document.querySelector('.board')
+
+  const screenUpdate = () => {
+    boardDiv.textContent = ''
+
+    const board = GameController.getBoard()
+    const currentPlayer = GameController.getPlayerTurn()
+
+    playerTurnText.textContent = `It is ${currentPlayer.name}'s turn`
+
+    board.forEach((row, pIndex) => {
+      row.forEach((square, index) => {
+        const squareBtn = document.createElement('button')
+        squareBtn.classList.add('square')
+
+        squareBtn.dataset.column = index
+        squareBtn.dataset.row = pIndex
+        squareBtn.textContent = square.getValue()
+        boardDiv.appendChild(squareBtn)
+      })
+    })
+  }
+  function boardClick(e) {
+    const selectColumn = e.target.dataset.column
+    const selectRow = e.target.dataset.row
+
+    GameController.playRound(selectRow, selectColumn)
+    screenUpdate()
+  }
+  boardDiv.addEventListener('click', boardClick)
+
+  screenUpdate()
+})()
+
+// GameController.playRound(0, 2)
+// GameController.playRound(2, 1)
+// GameController.playRound(1, 1)
+// GameController.playRound(2, 2)
+// GameController.playRound(2, 0)
+// GameController.playRound(0, 1)
+// GameController.playRound(0, 1)
