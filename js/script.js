@@ -54,6 +54,7 @@ const GameController = (function () {
       token: 2,
     },
   ]
+  let gameWinner
 
   players.forEach((player) => (player.name = prompt(`Player ${player.token}, what is your name?`, `Player ${player.token}`)))
 
@@ -70,6 +71,12 @@ const GameController = (function () {
     console.log(`${getPlayerTurn().name}'s turn.`)
   }
 
+  const winGame = (player) => {
+    gameWinner = player.name
+  }
+
+  const getGameWinner = () => gameWinner
+
   const playRound = (row, column) => {
     board.selectSquare(row, column, getPlayerTurn().token)
 
@@ -77,17 +84,17 @@ const GameController = (function () {
     const boardRow = board.getBoard()[row].every((index) => index.getValue() === getPlayerTurn().token)
 
     if (boardRow === true) {
-      console.log(`${getPlayerTurn().name} wins!`)
+      winGame(getPlayerTurn())
     }
     if (boardColumn.length === 3) {
-      console.log(`${getPlayerTurn().name} wins!`)
+      winGame(getPlayerTurn())
     }
     if (board.getBoard()[1][1].getValue() === getPlayerTurn().token) {
       if (board.getBoard()[0][0].getValue() === getPlayerTurn().token && board.getBoard()[2][2].getValue() === getPlayerTurn().token) {
-        console.log(`${getPlayerTurn().name} wins!`)
+        winGame(getPlayerTurn())
       }
       if (board.getBoard()[0][2].getValue() === getPlayerTurn().token && board.getBoard()[2][0].getValue() === getPlayerTurn().token) {
-        console.log(`${getPlayerTurn().name} wins!`)
+        winGame(getPlayerTurn())
       }
     }
 
@@ -97,12 +104,13 @@ const GameController = (function () {
 
   const resetGame = () => {
     board.resetBoard()
+    gameWinner = ''
     playerTurn = players[0]
   }
 
   printNewRound()
 
-  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame }
+  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame, getGameWinner }
 })()
 
 const displayController = (function () {
@@ -117,8 +125,7 @@ const displayController = (function () {
     boardDiv.textContent = ''
     const board = GameController.getBoard()
     const currentPlayer = GameController.getPlayerTurn()
-
-    playerTurnText.textContent = `It is ${currentPlayer.name}'s turn`
+    const playerWon = GameController.getGameWinner()
 
     board.forEach((row, pIndex) => {
       row.forEach((square, index) => {
@@ -131,11 +138,19 @@ const displayController = (function () {
         boardDiv.appendChild(squareBtn)
       })
     })
+
+    if (playerWon) {
+      playerTurnText.textContent = `${playerWon} wins!`
+      return
+    }
+    playerTurnText.textContent = `It is ${currentPlayer.name}'s turn`
   }
   function boardClick(e) {
     const selectColumn = e.target.dataset.column
     const selectRow = e.target.dataset.row
     if (e.target.textContent !== '0') return
+    if (GameController.getGameWinner()) return
+
     GameController.playRound(selectRow, selectColumn)
     screenUpdate()
   }
