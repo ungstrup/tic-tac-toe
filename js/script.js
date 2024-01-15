@@ -55,6 +55,8 @@ const GameController = (function () {
     },
   ]
   let gameWinner
+  let gameTied
+  let roundNumber = 0
 
   players.forEach((player) => (player.name = prompt(`Player ${player.token}, what is your name?`, `Player ${player.token}`)))
 
@@ -70,34 +72,43 @@ const GameController = (function () {
     board.printBoard()
     console.log(`${getPlayerTurn().name}'s turn.`)
   }
-
-  const winGame = (player) => {
-    gameWinner = player.name
+  const winGame = (board, row, column, player) => {
+    const boardColumn = board.getBoard().filter((rows) => rows[column].getValue() === player.token)
+    const boardRow = board.getBoard()[row].every((index) => index.getValue() === player.token)
+    if (boardRow === true) {
+      console.log('wins')
+      return player.name
+    }
+    if (boardColumn.length === 3) {
+      console.log('wins')
+      return player.name
+    }
+    if (board.getBoard()[1][1].getValue() === player.token) {
+      if (board.getBoard()[0][0].getValue() === player.token && board.getBoard()[2][2].getValue() === player.token) {
+        console.log('wins')
+        return player.name
+      }
+      if (board.getBoard()[0][2].getValue() === player.token && board.getBoard()[2][0].getValue() === player.token) {
+        console.log('wins')
+        return player.name
+      }
+    }
   }
 
   const getGameWinner = () => gameWinner
+  const getGameTied = () => gameTied
 
   const playRound = (row, column) => {
     board.selectSquare(row, column, getPlayerTurn().token)
 
-    const boardColumn = board.getBoard().filter((rows) => rows[column].getValue() === getPlayerTurn().token)
-    const boardRow = board.getBoard()[row].every((index) => index.getValue() === getPlayerTurn().token)
-
-    if (boardRow === true) {
-      winGame(getPlayerTurn())
+    if (winGame(board, row, column, getPlayerTurn()) === getPlayerTurn().name) {
+      gameWinner = getPlayerTurn().name
     }
-    if (boardColumn.length === 3) {
-      winGame(getPlayerTurn())
+    if (roundNumber >= 8) {
+      gameTied = true
     }
-    if (board.getBoard()[1][1].getValue() === getPlayerTurn().token) {
-      if (board.getBoard()[0][0].getValue() === getPlayerTurn().token && board.getBoard()[2][2].getValue() === getPlayerTurn().token) {
-        winGame(getPlayerTurn())
-      }
-      if (board.getBoard()[0][2].getValue() === getPlayerTurn().token && board.getBoard()[2][0].getValue() === getPlayerTurn().token) {
-        winGame(getPlayerTurn())
-      }
-    }
-
+    roundNumber += 1
+    console.log(roundNumber)
     switchPlayerTurn()
     printNewRound()
   }
@@ -105,12 +116,14 @@ const GameController = (function () {
   const resetGame = () => {
     board.resetBoard()
     gameWinner = ''
+    gameTied = false
+    roundNumber = 0
     playerTurn = players[0]
   }
 
   printNewRound()
 
-  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame, getGameWinner }
+  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame, getGameWinner, getGameTied }
 })()
 
 const displayController = (function () {
@@ -126,6 +139,7 @@ const displayController = (function () {
     const board = GameController.getBoard()
     const currentPlayer = GameController.getPlayerTurn()
     const playerWon = GameController.getGameWinner()
+    const isTie = GameController.getGameTied()
 
     board.forEach((row, pIndex) => {
       row.forEach((square, index) => {
@@ -143,13 +157,18 @@ const displayController = (function () {
       playerTurnText.textContent = `${playerWon} wins!`
       return
     }
+    if (isTie) {
+      playerTurnText.textContent = `The game is a tie!`
+      return
+    }
+
     playerTurnText.textContent = `It is ${currentPlayer.name}'s turn`
   }
   function boardClick(e) {
     const selectColumn = e.target.dataset.column
     const selectRow = e.target.dataset.row
     if (e.target.textContent !== '0') return
-    if (GameController.getGameWinner()) return
+    if (GameController.getGameWinner() || GameController.getGameTied()) return
 
     GameController.playRound(selectRow, selectColumn)
     screenUpdate()
