@@ -21,12 +21,7 @@ function Gameboard() {
     board[row][column].addToken(player)
   }
 
-  const printBoard = () => {
-    const boardWithCellValues = board.map((row) => row.map((square) => square.getValue()))
-    console.log(boardWithCellValues)
-  }
-
-  return { getBoard, selectSquare, printBoard, resetBoard }
+  return { getBoard, selectSquare, resetBoard }
 }
 
 function Square() {
@@ -68,28 +63,20 @@ const GameController = (function () {
 
   const getPlayerTurn = () => playerTurn
 
-  const printNewRound = () => {
-    board.printBoard()
-    console.log(`${getPlayerTurn().name}'s turn.`)
-  }
   const winGame = (board, row, column, player) => {
     const boardColumn = board.getBoard().filter((rows) => rows[column].getValue() === player.token)
     const boardRow = board.getBoard()[row].every((index) => index.getValue() === player.token)
     if (boardRow === true) {
-      console.log('wins')
       return player.name
     }
     if (boardColumn.length === 3) {
-      console.log('wins')
       return player.name
     }
     if (board.getBoard()[1][1].getValue() === player.token) {
       if (board.getBoard()[0][0].getValue() === player.token && board.getBoard()[2][2].getValue() === player.token) {
-        console.log('wins')
         return player.name
       }
       if (board.getBoard()[0][2].getValue() === player.token && board.getBoard()[2][0].getValue() === player.token) {
-        console.log('wins')
         return player.name
       }
     }
@@ -108,9 +95,7 @@ const GameController = (function () {
       gameTied = true
     }
     roundNumber += 1
-    console.log(roundNumber)
     switchPlayerTurn()
-    printNewRound()
   }
 
   const resetGame = () => {
@@ -120,8 +105,6 @@ const GameController = (function () {
     roundNumber = 0
     playerTurn = players[0]
   }
-
-  printNewRound()
 
   return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame, getGameWinner, getGameTied }
 })()
