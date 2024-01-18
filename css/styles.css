@@ -1,0 +1,89 @@
+* {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #3e3e3e;
+
+  width: 100%;
+  height: 100%;
+}
+
+.player,
+.wins {
+  text-align: center;
+  color: #fff;
+  margin: 0;
+  margin-top: 40px;
+}
+
+.player {
+  margin-top: 20px;
+}
+
+.board {
+  margin-top: 25px;
+
+  display: grid;
+  height: 66vh;
+  aspect-ratio: 1/1;
+  max-height: 600px;
+
+  grid-template-columns: repeat(3, 1fr);
+  margin-right: auto;
+  margin-left: auto;
+  gap: 7px;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.buttons {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.buttons > button {
+  width: 15vw;
+  height: 40px;
+
+  background-color: #13b3e0;
+  color: #fff;
+
+  font-size: 1.1em;
+
+  font-weight: bold;
+}
+
+.buttons > button:hover {
+  background-color: #0b7c9c;
+}
+
+.square {
+  margin: 0;
+  padding: 0;
+
+  height: 22vh;
+  max-height: 200px;
+
+  aspect-ratio: 1/1;
+}
+
+.square:hover {
+  background-color: #939393;
+}
+
+.square[data-value='1']:after {
+  content: 'o';
+  font-size: 5em;
+}
+
+.square[data-value='2']:after {
+  content: 'x';
+  font-size: 5em;
+}

@@ -43,10 +43,12 @@ const GameController = (function () {
     {
       name: '',
       token: 1,
+      wins: 0,
     },
     {
       name: '',
       token: 2,
+      wins: 0,
     },
   ]
   let gameWinner
@@ -54,8 +56,10 @@ const GameController = (function () {
   let roundNumber = 0
 
   players.forEach((player) => (player.name = prompt(`Player ${player.token}, what is your name?`, `Player ${player.token}`)))
-
   let playerTurn = players[0]
+
+  let playersList = players.map((player) => player)
+  const getPlayers = () => playersList
 
   const switchPlayerTurn = () => {
     playerTurn = playerTurn === players[0] ? players[1] : players[0]
@@ -67,16 +71,20 @@ const GameController = (function () {
     const boardColumn = board.getBoard().filter((rows) => rows[column].getValue() === player.token)
     const boardRow = board.getBoard()[row].every((index) => index.getValue() === player.token)
     if (boardRow === true) {
+      player.wins += 1
       return player.name
     }
     if (boardColumn.length === 3) {
+      player.wins += 1
       return player.name
     }
     if (board.getBoard()[1][1].getValue() === player.token) {
       if (board.getBoard()[0][0].getValue() === player.token && board.getBoard()[2][2].getValue() === player.token) {
+        player.wins += 1
         return player.name
       }
       if (board.getBoard()[0][2].getValue() === player.token && board.getBoard()[2][0].getValue() === player.token) {
+        player.wins += 1
         return player.name
       }
     }
@@ -106,11 +114,12 @@ const GameController = (function () {
     playerTurn = players[0]
   }
 
-  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame, getGameWinner, getGameTied }
+  return { playRound, getPlayerTurn, getBoard: board.getBoard, resetGame, getGameWinner, getGameTied, getPlayers }
 })()
 
 const displayController = (function () {
   const playerTurnText = document.querySelector('.player')
+  const playerWinText = document.querySelector('.wins')
   const boardDiv = document.querySelector('.board')
   const btnDiv = document.querySelector('.buttons')
   const resetButton = document.createElement('button')
@@ -123,6 +132,9 @@ const displayController = (function () {
     const currentPlayer = GameController.getPlayerTurn()
     const playerWon = GameController.getGameWinner()
     const isTie = GameController.getGameTied()
+    const playerScore = GameController.getPlayers()
+
+    playerWinText.textContent = `Score: ${playerScore[0].name}: ${playerScore[0].wins}, ${playerScore[1].name}: ${playerScore[1].wins}`
 
     board.forEach((row, pIndex) => {
       row.forEach((square, index) => {
@@ -131,7 +143,7 @@ const displayController = (function () {
 
         squareBtn.dataset.column = index
         squareBtn.dataset.row = pIndex
-        squareBtn.textContent = square.getValue()
+        squareBtn.dataset.value = square.getValue()
         boardDiv.appendChild(squareBtn)
       })
     })
@@ -150,7 +162,7 @@ const displayController = (function () {
   function boardClick(e) {
     const selectColumn = e.target.dataset.column
     const selectRow = e.target.dataset.row
-    if (e.target.textContent !== '0') return
+    if (e.target.dataset.value !== '0') return
     if (GameController.getGameWinner() || GameController.getGameTied()) return
 
     GameController.playRound(selectRow, selectColumn)
