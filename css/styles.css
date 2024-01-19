@@ -10,6 +10,26 @@ html {
   height: 100%;
 }
 
+#playerNames {
+  margin-top: 20vh;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  align-items: center;
+  gap: 10px;
+}
+
+input {
+  height: 30px;
+  width: 50%;
+}
+
+label {
+  color: #fff;
+}
+
 .player,
 .wins {
   text-align: center;
@@ -48,7 +68,8 @@ button {
   justify-content: center;
 }
 
-.buttons > button {
+.buttons > button,
+#startGameBtn {
   width: 15vw;
   height: 40px;
 
