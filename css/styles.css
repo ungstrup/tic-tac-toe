@@ -22,12 +22,14 @@ html {
 }
 
 input {
-  height: 30px;
+  height: 40px;
   width: 50%;
+  font-size: 1em;
 }
 
 label {
   color: #fff;
+  font-size: 1.3em;
 }
 
 .player,
